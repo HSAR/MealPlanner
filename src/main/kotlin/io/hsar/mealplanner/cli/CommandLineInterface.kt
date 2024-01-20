@@ -11,6 +11,7 @@ import io.hsar.mealplanner.MealPlanner
 import io.hsar.mealplanner.storage.MealOptionStorage
 import io.hsar.mealplanner.storage.PreviousMealStorage
 import java.nio.file.Path
+import java.time.LocalDate
 
 abstract class Command(val name: String) {
     abstract fun run()
@@ -19,19 +20,27 @@ abstract class Command(val name: String) {
 class CommandLineInterface : Command("generateMealPlan") {
 
     @Parameter(
-        names = ["--days"],
+        names = ["--days", "-d"],
         description = "An integer number of days to generate a meal plan for",
         required = true,
     )
     private lateinit var daysInput: String
 
+    @Parameter(
+        names = ["--from-date", "-f"],
+        description = "ISO 8601 formatted date for the first day on which a meal is required. Meals generated will be deterministic on this input.",
+        required = false,
+    )
+    private lateinit var fromDateInput: LocalDate
+
     override fun run() {
         val mealOptions = MealOptionStorage(MEAL_OPTIONS_PATH)
         val previousMeals = PreviousMealStorage(PREVIOUS_MEALS_PATH)
+        val fromDate = if (this::fromDateInput.isInitialized) { fromDateInput } else { LocalDate.now() }
 
         val days = Integer.parseInt(daysInput)
         MealPlanner(previousMeals, mealOptions)
-            .generate(days)
+            .generate(days, fromDate)
     }
 }
 
