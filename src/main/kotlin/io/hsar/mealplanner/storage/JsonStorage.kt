@@ -15,13 +15,19 @@ abstract class JsonStorage<T>(val filePath: File, protected val mapper: ObjectMa
 
     abstract fun read(): T
 
-    fun write(input: T) = mapper.writeValue(filePath, input)
+    open fun write(input: T) = mapper.writeValue(filePath, input)
 }
 
 class PreviousMealStorage(filePath: File, mapper: ObjectMapper = OBJECT_MAPPER) : JsonStorage<PreviousMeals>(filePath, mapper) {
     override fun read(): PreviousMeals = mapper.readValue(filePath)
 }
 
-class MealOptionStorage(filePath: File, mapper: ObjectMapper = OBJECT_MAPPER): JsonStorage<Set<Meal>>(filePath, mapper) {
-    override fun read(): Set<Meal> = mapper.readValue(filePath)
+/**
+ * Stores meals uniquely by name. If there are multiple meals in the input with the same name, one will be chosen.
+ */
+class MealOptionStorage(filePath: File, mapper: ObjectMapper = OBJECT_MAPPER) : JsonStorage<Set<Meal>>(filePath, mapper) {
+    override fun read(): Set<Meal> = mapper.readValue<Map<String, Meal>>(filePath)
+        .values.toSet()
+
+    override fun write(input: Set<Meal>) = input.associateBy { it.name }.let { mapper.writeValue(filePath, it) }
 }
