@@ -17,7 +17,7 @@ class JsonStorageTest {
     @Test
     fun `reads as expected`() {
         // Arrange
-        val objectUnderTest = JsonStorage(filePath = TEST_FILE)
+        val objectUnderTest = PreviousMealStorage(filePath = TEST_FILE)
 
         // Act
         val result = objectUnderTest.read()
@@ -29,7 +29,7 @@ class JsonStorageTest {
     @Test
     fun `writes as expected`() {
         // Arrange
-        val objectUnderTest = JsonStorage(filePath = TEMP_FILE, mapper = TEST_MAPPER)
+        val objectUnderTest = PreviousMealStorage(filePath = TEMP_FILE, mapper = TEST_MAPPER)
 
         // Act
         objectUnderTest.write(TEST_STATE)
