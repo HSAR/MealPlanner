@@ -27,6 +27,13 @@ class CommandLineInterface : Command("generateMealPlan") {
     private lateinit var daysInput: String
 
     @Parameter(
+        names = ["--number-of-people", "-n"],
+        description = "An integer number of people that need meals per day",
+        required = true,
+    )
+    private lateinit var numPeopleInput: String
+
+    @Parameter(
         names = ["--from-date", "-f"],
         description = "ISO 8601 formatted date for the first day on which a meal is required. Meals generated will be deterministic on this input.",
         required = false,
@@ -39,8 +46,9 @@ class CommandLineInterface : Command("generateMealPlan") {
         val fromDate = if (this::fromDateInput.isInitialized) { fromDateInput } else { LocalDate.now() }
 
         val days = Integer.parseInt(daysInput)
+        val numPeople = Integer.parseInt(numPeopleInput)
         MealPlanner(previousMeals, mealOptions)
-            .generate(days, fromDate)
+            .generate(days, numPeople, fromDate)
     }
 }
 

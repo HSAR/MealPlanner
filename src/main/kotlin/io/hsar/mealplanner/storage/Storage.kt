@@ -4,22 +4,29 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.hsar.mealplanner.cli.OBJECT_MAPPER
 import io.hsar.mealplanner.data.Meal
-import io.hsar.mealplanner.data.PreviousMeals
 import java.io.File
+import java.time.LocalDate
 
 /**
  * Stores previous meals in a machine-readable (but human-friendly) map format.
  * Fully responsible for serialisation and deserialisation.
  */
-abstract class JsonStorage<T>(val filePath: File, protected val mapper: ObjectMapper = OBJECT_MAPPER) {
+interface Storage<T> {
+    fun read(): T
 
-    abstract fun read(): T
-
-    open fun write(input: T) = mapper.writeValue(filePath, input)
+    fun write(input: T)
 }
 
-class PreviousMealStorage(filePath: File, mapper: ObjectMapper = OBJECT_MAPPER) : JsonStorage<PreviousMeals>(filePath, mapper) {
-    override fun read(): PreviousMeals = mapper.readValue(filePath)
+abstract class JsonStorage<T>(val filePath: File, protected val mapper: ObjectMapper = OBJECT_MAPPER): Storage<T> {
+
+    override fun write(input: T) = mapper.writeValue(filePath, input)
+}
+
+/**
+ * Stores a map of meal names to the date they were last cooked.
+ */
+class PreviousMealStorage(filePath: File, mapper: ObjectMapper = OBJECT_MAPPER) : JsonStorage<Map<String, LocalDate>>(filePath, mapper) {
+    override fun read(): Map<String, LocalDate> = mapper.readValue(filePath)
 }
 
 /**
