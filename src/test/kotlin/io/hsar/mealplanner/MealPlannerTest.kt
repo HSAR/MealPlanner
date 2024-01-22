@@ -1,15 +1,14 @@
 package io.hsar.mealplanner
 
-import io.hsar.mealplanner.MealPlannerTest.Companion.TEST_DATE2
-import io.hsar.mealplanner.MealPlannerTest.Companion.TEST_DATE3
-import io.hsar.mealplanner.data.Meal
-import io.hsar.mealplanner.data.Servings
+import io.hsar.mealplanner.data.PastMeal
+import io.hsar.mealplanner.data.PossibleMeal
+import io.hsar.mealplanner.data.PossibleServings
 import io.hsar.mealplanner.storage.Storage
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
-import java.time.temporal.ChronoUnit
+import java.util.*
 
 class MealPlannerTest {
     @Test
@@ -31,38 +30,44 @@ class MealPlannerTest {
         val TEST_DATE2 = TEST_DATE1.minusDays(1)
         val TEST_DATE3 = TEST_DATE1.minusDays(2)
 
-        val TEST_MEAL1 = Meal(
+        val POSSIBLE_MEAL_1 = PossibleMeal(
             name = "Sausage and Leek Pasta",
-            servings = Servings(min = 2, max = 6),
+            possibleServings = PossibleServings(min = 2, max = 6),
             tags = setOf("pasta", "leek", "sausage")
         )
 
-        val TEST_MEAL2 = Meal(
+        val POSSIBLE_MEAL_2 = PossibleMeal(
             name = "Steak",
-            servings = Servings(min = 1, max = 4),
+            possibleServings = PossibleServings(min = 1, max = 4),
             tags = setOf("steak")
         )
 
         val EXPECTED_RESULT = listOf(
-            TEST_MEAL1 to 6,
-            TEST_MEAL2 to 2
+            POSSIBLE_MEAL_1.toPastMeal(6),
+            POSSIBLE_MEAL_2.toPastMeal(2)
         )
-
-
     }
 }
 
-class TestPreviousMealStorage : Storage<Map<String, LocalDate>> {
-    override fun read(): Map<String, LocalDate> = mapOf(
-        "Sausage and Leek Pasta" to TEST_DATE3,
-        "Steak" to TEST_DATE2
+class TestPreviousMealStorage : Storage<SortedMap<LocalDate, PastMeal>> {
+    override fun read(): SortedMap<LocalDate, PastMeal> = sortedMapOf(
+        LocalDate.of(2023, 6, 23) to PastMeal(
+            name = "Sausage and Leek Pasta",
+            tags = setOf("pasta", "leek", "sausage"),
+            servings = 4
+        ),
+        LocalDate.of(2023, 6, 24) to PastMeal(
+            name = "Steak",
+            tags = setOf("steak"),
+            servings = 2
+        )
     )
 
-    override fun write(input: Map<String, LocalDate>) = TODO("Don't use this")
+    override fun write(input: SortedMap<LocalDate, PastMeal>) = TODO("Don't use this")
 }
 
-class TestMealOptionStorage : Storage<Set<Meal>> {
-    override fun read(): Set<Meal> = setOf(MealPlannerTest.TEST_MEAL1, MealPlannerTest.TEST_MEAL2)
+class TestMealOptionStorage : Storage<Set<PossibleMeal>> {
+    override fun read(): Set<PossibleMeal> = setOf(MealPlannerTest.POSSIBLE_MEAL_1, MealPlannerTest.POSSIBLE_MEAL_2)
 
-    override fun write(input: Set<Meal>) = TODO("Don't use this")
+    override fun write(input: Set<PossibleMeal>) = TODO("Don't use this")
 }

@@ -3,7 +3,9 @@ package io.hsar.mealplanner.storage
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.hsar.mealplanner.data.Meal
-import io.hsar.mealplanner.data.Servings
+import io.hsar.mealplanner.data.PastMeal
+import io.hsar.mealplanner.data.PossibleMeal
+import io.hsar.mealplanner.data.PossibleServings
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
@@ -17,7 +19,7 @@ class StorageTest {
     @Test
     fun `reads as expected`() {
         // Arrange
-        val objectUnderTest = PreviousMealStorage(filePath = TEST_FILE)
+        val objectUnderTest = PastMealStorage(filePath = TEST_FILE)
 
         // Act
         val result = objectUnderTest.read()
@@ -29,7 +31,7 @@ class StorageTest {
     @Test
     fun `writes as expected`() {
         // Arrange
-        val objectUnderTest = PreviousMealStorage(filePath = TEMP_FILE, mapper = TEST_MAPPER)
+        val objectUnderTest = PastMealStorage(filePath = TEMP_FILE, mapper = TEST_MAPPER)
 
         // Act
         objectUnderTest.write(TEST_STATE)
@@ -49,12 +51,21 @@ class StorageTest {
 
         val TEST_FILE = File("src/test/resources/testStorage.json")
 
-        val TEST_STATE = mapOf(
-            "Sausage and Leek Pasta" to LocalDate.of(2023, 6, 23),
-            "Steak" to LocalDate.of(2023, 6, 24)
+        val TEST_STATE = sortedMapOf(
+            LocalDate.of(2023, 6, 23) to PastMeal(
+                name = "Sausage and Leek Pasta",
+                tags = setOf("pasta", "leek", "sausage"),
+                servings = 4
+            ),
+            LocalDate.of(2023, 6, 24) to PastMeal(
+                name = "Steak",
+                tags = setOf("steak"),
+                servings = 2
+            )
         )
 
+
         val EXPECTED_RESULT =
-            "{\"Sausage and Leek Pasta\":[2023,6,23],\"Steak\":[2023,6,24]}"
+            "{\"2023-06-23\":{\"name\":\"Sausage and Leek Pasta\",\"tags\":[\"pasta\",\"leek\",\"sausage\"],\"servings\":4,\"description\":null},\"2023-06-24\":{\"name\":\"Steak\",\"tags\":[\"steak\"],\"servings\":2,\"description\":null}}"
     }
 }

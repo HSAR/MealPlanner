@@ -1,12 +1,20 @@
 {
-  "Sausage and Leek Pasta": [
-    2023,
-    6,
-    23
-  ],
-  "Steak": [
-    2023,
-    6,
-    24
-  ]
+  "2023-06-23": {
+    "name": "Sausage and Leek Pasta",
+    "tags": [
+      "pasta",
+      "leek",
+      "sausage"
+    ],
+    "servings": 4,
+    "description": null
+  },
+  "2023-06-24": {
+    "name": "Steak",
+    "tags": [
+      "steak"
+    ],
+    "servings": 2,
+    "description": null
+  }
 }

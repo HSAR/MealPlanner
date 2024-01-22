@@ -8,8 +8,8 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.hsar.mealplanner.MealPlanner
-import io.hsar.mealplanner.storage.MealOptionStorage
-import io.hsar.mealplanner.storage.PreviousMealStorage
+import io.hsar.mealplanner.storage.PossibleMealStorage
+import io.hsar.mealplanner.storage.PastMealStorage
 import java.nio.file.Path
 import java.time.LocalDate
 
@@ -41,14 +41,17 @@ class CommandLineInterface : Command("generateMealPlan") {
     private lateinit var fromDateInput: LocalDate
 
     override fun run() {
-        val mealOptions = MealOptionStorage(MEAL_OPTIONS_PATH)
-        val previousMeals = PreviousMealStorage(PREVIOUS_MEALS_PATH)
+        val possibleMeals = PossibleMealStorage(MEAL_OPTIONS_PATH)
+        val previousMeals = PastMealStorage(PREVIOUS_MEALS_PATH)
         val fromDate = if (this::fromDateInput.isInitialized) { fromDateInput } else { LocalDate.now() }
 
         val days = Integer.parseInt(daysInput)
         val numPeople = Integer.parseInt(numPeopleInput)
-        MealPlanner(previousMeals, mealOptions)
+
+        val result = MealPlanner(previousMeals, possibleMeals)
             .generate(days, numPeople, fromDate)
+
+        println(result)
     }
 }
 
